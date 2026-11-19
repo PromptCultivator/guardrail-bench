@@ -1,0 +1,20 @@
+{
+  "name": "smoke_50",
+  "version": "1.0.0",
+  "path": "datasets/fixtures/smoke_50.jsonl",
+  "sha256": "9bf3426e30e4d7c2490b43d3e15c6452423b43b148fde2c131383d0b91799c5b",
+  "row_count": 50,
+  "track_counts": {
+    "mcp_trifecta": 15,
+    "prompt_injection": 20,
+    "redaction": 15
+  },
+  "sources": [
+    {
+      "name": "synthetic_canary_corpus",
+      "license": "Apache-2.0",
+      "commit_sha": "local-deterministic-v1",
+      "notes": "Zero-network synthetic fixture using RFC/AWS documentation canary tokens."
+    }
+  ]
+}

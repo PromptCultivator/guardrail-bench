@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0.0",
+  "tracks": {
+    "prompt_injection": {
+      "output_file": "datasets/splits/track1_injection.jsonl",
+      "manifest_file": "datasets/manifests/track1_injection.manifest.json",
+      "sources": [
+        {
+          "name": "deepset/prompt-injections",
+          "url": "https://huggingface.co/datasets/deepset/prompt-injections",
+          "split": "test",
+          "commit_sha": "4f61ecb038e9c3fb77e21034b22511b523772cdd",
+          "license": "Apache-2.0",
+          "role": "malicious_and_benign_injection"
+        },
+        {
+          "name": "xTRam1/safe-guard-prompt-injection",
+          "url": "https://huggingface.co/datasets/xTRam1/safe-guard-prompt-injection",
+          "split": "test",
+          "commit_sha": "a3a877d608f37b7d20d9945671902df895ecdb46",
+          "license": "MIT",
+          "role": "malicious_and_benign_injection"
+        },
+        {
+          "name": "InjecAgent",
+          "url": "https://github.com/uiuc-kang-lab/InjecAgent",
+          "split": "eval",
+          "commit_sha": "main",
+          "license": "MIT",
+          "role": "indirect_agent_injection"
+        },
+        {
+          "name": "AgentDojo",
+          "url": "https://github.com/ethz-spylab/agentdojo",
+          "split": "eval",
+          "commit_sha": "main",
+          "license": "MIT",
+          "role": "indirect_agent_injection"
+        },
+        {
+          "name": "leolee99/NotInject",
+          "url": "https://huggingface.co/datasets/leolee99/NotInject",
+          "splits": [
+            "NotInject_one",
+            "NotInject_two",
+            "NotInject_three"
+          ],
+          "commit_sha": "847ae76cf8fea5ed325429e569ae8cfef022d2e0",
+          "license": "MIT",
+          "role": "hard_negative_over_defense",
+          "expected_rows": 339
+        }
+      ]
+    },
+    "redaction": {
+      "output_file": "datasets/splits/track2_redaction.jsonl",
+      "manifest_file": "datasets/manifests/track2_redaction.manifest.json",
+      "sources": [
+        {
+          "name": "ai4privacy/pii-masking-300k",
+          "url": "https://huggingface.co/datasets/ai4privacy/pii-masking-300k",
+          "split": "validation",
+          "commit_sha": "c8c77895a005822682b66ab547fc0422579bc1d3",
+          "license": "CC-BY-4.0",
+          "sample_size": 2000,
+          "role": "pii_character_spans"
+        },
+        {
+          "name": "synthetic_secrets_and_source_code",
+          "url": "local://datasets/scripts/build_splits.py",
+          "split": "deterministic_seed",
+          "commit_sha": "local-deterministic-v1",
+          "license": "Apache-2.0",
+          "sample_size": 1000,
+          "role": "canary_secrets_and_source_code_spans"
+        }
+      ]
+    },
+    "mcp_trifecta": {
+      "output_file": "datasets/splits/track3_mcp_trifecta.jsonl",
+      "manifest_file": "datasets/manifests/track3_mcp_trifecta.manifest.json",
+      "sources": [
+        {
+          "name": "corteus/trifecta-bench",
+          "url": "https://github.com/corteus-labs/trifecta-bench",
+          "split": "scenarios",
+          "commit_sha": "main",
+          "license": "Apache-2.0",
+          "tools_labeled": 180,
+          "servers": [
+            "github",
+            "supabase",
+            "playwright",
+            "notion",
+            "slack",
+            "filesystem",
+            "memory",
+            "fetch",
+            "git"
+          ],
+          "expanded_sessions": 200,
+          "role": "mcp_lethal_trifecta_traces"
+        }
+      ]
+    }
+  }
+}
