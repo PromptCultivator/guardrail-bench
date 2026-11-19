@@ -1,0 +1,32 @@
+services:
+  trifecta-extproc:
+    build:
+      context: ../..
+      dockerfile: deployments/envoy/Dockerfile
+      target: trifecta-extproc
+    ports:
+      - "9002:9002"
+    restart: "no"
+
+  mock-llm-sse:
+    build:
+      context: ../..
+      dockerfile: deployments/envoy/Dockerfile
+      target: mock-llm-sse
+    ports:
+      - "8080:8080"
+    restart: "no"
+
+  envoy:
+    image: envoyproxy/envoy:v1.33.0
+    depends_on:
+      - trifecta-extproc
+      - mock-llm-sse
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+      - "9901:9901"
+    command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warn"]
