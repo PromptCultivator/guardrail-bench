@@ -1,0 +1,25 @@
+# Binaries and build outputs
+bin/
+dist/
+*.out
+coverage.txt
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Local data downloads (pinned manifests & smoke fixtures stay committed)
+datasets/raw/
+datasets/splits/
+
+# OS & editor files
+.DS_Store
+.idea/
+.vscode/
+.agents/
+*.swp

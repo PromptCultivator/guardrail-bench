@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "guardrail-bench-worker"
+version = "0.1.0"
+description = "Python gRPC adapter worker for guardrail-bench"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = [
+    "grpcio>=1.68.0",
+    "protobuf>=5.29.0",
+]
+
+[project.optional-dependencies]
+aws = [
+    "boto3>=1.43.30",
+]
+oss = [
+    "llamafirewall>=1.0.3",
+    "nemoguardrails>=0.12.0",
+    "presidio-analyzer>=2.2.357",
+    "presidio-anonymizer>=2.2.357",
+    "transformers>=4.49.0",
+    "httpx>=0.28.0",
+]
+datasets = [
+    "datasets>=3.2.0",
+    "huggingface-hub>=0.27.0",
+]
+
+[dependency-groups]
+dev = [
+    "boto3>=1.43.30",
+    "grpcio-tools>=1.68.0",
+    "grpc-stubs>=1.53.0.5",
+    "mypy>=1.14.0",
+    "mypy-protobuf>=3.6.0",
+    "pytest>=8.3.0",
+    "ruff>=0.9.0",
+    "types-protobuf>=5.29.1.20250208",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["python/bench_worker"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/python"]
+pythonpath = ["python"]
+addopts = "-q"
+markers = [
+    "live: integration tests requiring live models, HuggingFace downloads, or AWS credentials",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["python/bench_worker/gen"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["bench_worker"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "python"
+explicit_package_bases = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "bench_worker.gen.*"
+ignore_errors = true
