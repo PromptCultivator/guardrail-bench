@@ -20,24 +20,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache: true
 
       - name: Set up uv & Python 3.12
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v10.3.3
         with:
           python-version: "3.12"
           enable-cache: true
 
       - name: Install protoc & Go protobuf plugins
         run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends protobuf-compiler
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          PROTOC_VERSION=36.2
+          curl -fsSL -o /tmp/protoc.zip "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip"
+          sudo unzip -q -o /tmp/protoc.zip -d /usr/local 'bin/*' 'include/*'
+          rm -f /tmp/protoc.zip
+          protoc --version
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
 
       - name: Sync Python dev dependencies
@@ -103,10 +107,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache: true
