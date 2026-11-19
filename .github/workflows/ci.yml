@@ -1,0 +1,122 @@
+name: guardrail-bench CI Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-and-regression-gate:
+    name: Offline Smoke, Determinism & PR Regression Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up uv & Python 3.12
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install protoc & Go protobuf plugins
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends protobuf-compiler
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+
+      - name: Sync Python dev dependencies
+        run: uv sync --frozen --dev
+
+      - name: Verify generated protobuf stubs are up to date
+        run: |
+          make proto
+          git diff --exit-code internal/gen python/bench_worker/gen
+
+      - name: Go lint & race-enabled unit tests
+        run: |
+          go vet ./...
+          go test -race -count=1 ./...
+
+      - name: Python ruff, mypy --strict & offline unit tests
+        run: |
+          uv run ruff check python/ tests/python/ datasets/scripts/
+          uv run mypy --strict python/ tests/python/ datasets/scripts/
+          uv run pytest -v tests/python/
+
+      - name: Build binaries & verify smoke_50 manifest
+        run: |
+          make build
+          ./bin/guardrail-bench validate --manifest datasets/manifests/smoke_50.manifest.json
+
+      - name: Run 5-repeat determinism check & PR regression gate
+        run: |
+          ./bin/guardrail-bench run \
+            --adapter trifecta_extproc \
+            --dataset datasets/fixtures/smoke_50.jsonl \
+            --repeats 5 \
+            --seed 42 \
+            --out /tmp/candidate_run1.json
+
+          ./bin/guardrail-bench run \
+            --adapter trifecta_extproc \
+            --dataset datasets/fixtures/smoke_50.jsonl \
+            --repeats 5 \
+            --seed 42 \
+            --out /tmp/candidate_run2.json
+
+          cmp /tmp/candidate_run1.json /tmp/candidate_run2.json
+
+          ./bin/guardrail-bench gate \
+            --baseline datasets/baselines/trifecta_extproc_smoke_50.score.json \
+            --candidate /tmp/candidate_run1.json \
+            --max-recall-drop 0.01 \
+            --max-notinject-drop 0.01 \
+            --max-trifecta-drop 0.01 \
+            --max-rslr-increase 0.01 \
+            --max-p99-regression 0.15 \
+            --require-zero-vfr
+
+          ./bin/guardrail-bench report \
+            --input /tmp/candidate_run1.json \
+            --format markdown >> "$GITHUB_STEP_SUMMARY"
+
+  envoy-extproc-integration:
+    name: Envoy ext_proc SSE Latency & Chaos Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Start Envoy + trifecta-extproc + mock-llm-sse
+        run: make envoy-up
+
+      - name: Run SSE ΔTTFT (<5ms p99), Track 3 Trifecta & Fail-Open/Closed Chaos Gate
+        run: make envoy-test
+
+      - name: Tear down Docker Compose stack
+        if: always()
+        run: make envoy-down
