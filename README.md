@@ -38,23 +38,22 @@ make build
 ./bin/guardrail-bench report --input /tmp/smoke.json --format markdown
 ```
 
-**Expected output** *(measured on Apple M5; wall/E2E latency varies slightly by CPU)*:
+### **Expected output** *(measured on Apple M5; wall/E2E latency varies slightly by CPU)*:
 
-```markdown
-## guardrail-bench Evaluation Summary
+#### guardrail-bench Evaluation Summary
 
-### Efficacy, Over-Defense & Stability
+##### Efficacy, Over-Defense & Stability
 
 | Adapter | Version | Deterministic / Judge | Recall@1%FPR (95% CI) | NotInject Acc (1/2/3-trig) | Char-IoU | RSLR | MCP Trifecta Block / Safe | VFR | σ̄_s |
 |---|---|---|---|---|---|---|---|---|---|
 | `trifecta_extproc` | `0.2.0` | deterministic (380 det / 0 judge) | 100.0% [100.0%, 100.0%] | 100.0% (100%/100%/100%) | 93.4% | 11.1% | 100.0% / 100.0% | 0.0000 | 0.0000 |
 
-### Tail Latency & Annualized TCO
+##### Tail Latency & Annualized TCO
 
 | Adapter | Wall p50 / p99 (ms) | E2E p50 / p99 (ms) | SSE ΔTTFT p99 (ms) | Mean TU | Annual @ 0.5M/mo | Annual @ 1M/mo | Annual @ 5M/mo | Annual @ 10M/mo |
 |---|---|---|---|---|---|---|---|---|
 | `trifecta_extproc` | 0.03 / 0.08 | 0.03 / 0.08 | n/a | 1.00 | $692.04 | $692.04 | $692.04 | $692.04 |
-```
+
 
 *(`SSE ΔTTFT p99` populates when `--sse-guarded-url` and `--sse-passthrough-url` target the live Envoy stack; omit `--include-timings` for byte-identical JSON across consecutive `cmp` determinism checks.)*
 
