@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0.0",
+  "adapter_name": "trifecta_extproc",
+  "model_version": "0.2.0",
+  "dataset_path": "datasets/fixtures/smoke_50.jsonl",
+  "dataset_sha256": "9bf3426e30e4d7c2490b43d3e15c6452423b43b148fde2c131383d0b91799c5b",
+  "seed": 42,
+  "bootstrap_resamples": 1000,
+  "total_samples": 50,
+  "error_count": 0,
+  "judge_separation": {
+    "evaluation_mode": "deterministic",
+    "deterministic_turns": 380,
+    "judge_graded_turns": 0,
+    "contains_judge_verdict": false
+  },
+  "overall_confusion": {
+    "tp": 31,
+    "fp": 0,
+    "tn": 19,
+    "fn": 0,
+    "precision": 1,
+    "recall": 1,
+    "f1": 1,
+    "fpr": 0,
+    "accuracy": 1
+  },
+  "track1_injection": {
+    "sample_count": 20,
+    "confusion": {
+      "tp": 10,
+      "fp": 0,
+      "tn": 10,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "fpr": 0,
+      "accuracy": 1
+    },
+    "recall_at_1pct_fpr": {
+      "alpha": 0.01,
+      "threshold": 0.050001,
+      "empirical_fpr": 0,
+      "recall": {
+        "point": 1,
+        "lower_95": 1,
+        "upper_95": 1
+      }
+    },
+    "recall_at_5pct_fpr": {
+      "alpha": 0.05,
+      "threshold": 0.050001,
+      "empirical_fpr": 0,
+      "recall": {
+        "point": 1,
+        "lower_95": 1,
+        "upper_95": 1
+      }
+    },
+    "notinject": {
+      "total": 6,
+      "allowed": 6,
+      "accuracy": {
+        "point": 1,
+        "lower_95": 1,
+        "upper_95": 1
+      },
+      "subset_1_trigger_accuracy": 1,
+      "subset_2_trigger_accuracy": 1,
+      "subset_3_trigger_accuracy": 1,
+      "count_1_trigger": 2,
+      "count_2_trigger": 2,
+      "count_3_trigger": 2
+    }
+  },
+  "track2_redaction": {
+    "sample_count": 15,
+    "sensitive_samples": 13,
+    "macro_char_iou": {
+      "point": 0.934295,
+      "lower_95": 0.826923,
+      "upper_95": 1
+    },
+    "micro_char_iou": 0.98107,
+    "entity_strict_recall": 0.888889,
+    "total_gt_spans": 18,
+    "strict_matched_spans": 16,
+    "leaked_spans": 2,
+    "residual_secret_leak_rate": 0.111111,
+    "benign_false_blocks": 0
+  },
+  "track3_mcp_trifecta": {
+    "sample_count": 15,
+    "dangerous_total": 8,
+    "dangerous_blocked_outbound": 8,
+    "dangerous_premature_blocks": 0,
+    "dangerous_missed_exfil": 0,
+    "safe_total": 7,
+    "safe_passed_all_turns": 7,
+    "trifecta_block_rate": 1,
+    "safe_pass_rate": 1
+  },
+  "stability": {
+    "repeats": 5,
+    "sample_count": 50,
+    "flipped_samples": 0,
+    "verdict_flip_rate": 0,
+    "mean_score_std_dev": 0
+  },
+  "tco": {
+    "rate_card": {
+      "adapter_id": "trifecta_extproc",
+      "rate_per_1k_text_units_usd": 0,
+      "base_monthly_infra_usd": 57.67,
+      "replicas_base": 2,
+      "sustained_rps_per_replica": 1500,
+      "peak_to_avg_multiplier": 3,
+      "pricing_notes": "ARM64 Graviton Fargate HA baseline ($57.67/mo for 2 tasks)"
+    },
+    "mean_text_units": 1,
+    "projections": [
+      {
+        "monthly_requests": 500000,
+        "volume_label": "0.5M/mo",
+        "monthly_api_cost_usd": 0,
+        "monthly_infra_usd": 57.67,
+        "annual_cost_usd": 692.04,
+        "replicas_required": 2
+      },
+      {
+        "monthly_requests": 1000000,
+        "volume_label": "1M/mo",
+        "monthly_api_cost_usd": 0,
+        "monthly_infra_usd": 57.67,
+        "annual_cost_usd": 692.04,
+        "replicas_required": 2
+      },
+      {
+        "monthly_requests": 5000000,
+        "volume_label": "5M/mo",
+        "monthly_api_cost_usd": 0,
+        "monthly_infra_usd": 57.67,
+        "annual_cost_usd": 692.04,
+        "replicas_required": 2
+      },
+      {
+        "monthly_requests": 10000000,
+        "volume_label": "10M/mo",
+        "monthly_api_cost_usd": 0,
+        "monthly_infra_usd": 57.67,
+        "annual_cost_usd": 692.04,
+        "replicas_required": 2
+      }
+    ]
+  }
+}
