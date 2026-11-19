@@ -1,0 +1,1 @@
+"""Generated bench protobuf namespace."""

@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package bench.v1;
+
+option go_package = "github.com/PromptCultivator/guardrail-bench/internal/gen/bench/v1;benchv1";
+
+service AdapterService {
+  rpc Evaluate(EvaluateRequest) returns (EvaluateResponse);
+  rpc ResetSession(ResetSessionRequest) returns (ResetSessionResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+enum Direction {
+  DIRECTION_UNSPECIFIED = 0;
+  DIRECTION_INPUT = 1;
+  DIRECTION_OUTPUT = 2;
+  DIRECTION_TOOL_CALL = 3;
+  DIRECTION_TOOL_RESULT = 4;
+}
+
+message ToolAnnotations {
+  string tool_name = 1;
+  string server_name = 2;
+  optional bool read_only_hint = 3;   // MCP spec default if unset: false
+  optional bool destructive_hint = 4; // MCP spec default if unset: true
+  optional bool idempotent_hint = 5;  // MCP spec default if unset: false
+  optional bool open_world_hint = 6;  // MCP spec default if unset: true
+  bool trusted_server = 7;            // Untrusted server hints must not auto-approve
+}
+
+message EvaluateRequest {
+  string sample_id = 1;
+  string session_id = 2;
+  int32 turn_index = 3;
+  Direction direction = 4;
+  string role = 5; // user, system, assistant, tool
+  string text = 6;
+  optional ToolAnnotations mcp_tool = 7;
+}
+
+message SpanFinding {
+  string entity_type = 1; // EMAIL, SSN, AWS_ACCESS_KEY, SOURCE_CODE, etc.
+  int32 begin_offset = 2; // UTF-8 character start index [begin, end)
+  int32 end_offset = 3;
+  double confidence = 4;
+}
+
+message SessionTaint {
+  bool reads_private = 1;
+  bool reads_untrusted = 2;
+  bool sends_out = 3;
+  bool trifecta_triggered = 4;
+}
+
+message UsageMetrics {
+  int32 input_chars = 1;
+  int32 text_units_billed = 2; // ceil(chars / 1000) for Bedrock rate cards
+  int32 input_tokens = 3;
+  double adapter_wall_ms = 4;  // Pure engine execution time inside worker
+}
+
+message EvaluateResponse {
+  bool blocked = 1;                  // True if request/tool call is blocked or paused
+  double risk_score = 2;             // Continuous score in [0.0, 1.0] for PR-AUC / FPR calibration
+  string redacted_text = 3;          // Populated if adapter supports masking/tokenization
+  repeated SpanFinding spans = 4;
+  repeated string triggered_categories = 5;
+  SessionTaint taint_state = 6;
+  UsageMetrics usage = 7;
+  bool judge_graded = 8;             // True if verdict relied on generative LLM reasoning
+}
+
+message ResetSessionRequest {
+  string session_id = 1;
+}
+
+message ResetSessionResponse {}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string adapter_name = 1;
+  string model_version = 2;
+}
