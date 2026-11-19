@@ -1,0 +1,27 @@
+# GPU-ready Plane 2 Python worker container for real HuggingFace / LlamaFirewall /
+# PIGuard / NeMo+Presidio weights (mount ~/.cache/huggingface to avoid re-downloading).
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    TOKENIZERS_PARALLELISM=true \
+    HF_HOME=/cache/huggingface
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-venv curl ca-certificates git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install uv for deterministic lockfile installs.
+COPY --from=ghcr.io/astral-sh/uv:0.13.9 /uv /usr/local/bin/uv
+
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+COPY python/ ./python/
+
+RUN uv sync --frozen --extra oss --python 3.11
+
+EXPOSE 50051
+VOLUME ["/cache/huggingface"]
+
+ENTRYPOINT ["uv", "run", "python", "-m", "bench_worker.server"]
+CMD ["--adapter", "piguard", "--listen", "0.0.0.0:50051"]
